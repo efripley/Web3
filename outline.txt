@@ -8,3 +8,13 @@ This document outlines the functionallity desired for the calendar app
 4. Users will see a beautiful background with the calendar displayed on top
 5. When a user clicks on a rectangle representing some day a popup will appear listing the items entered for that day.
 6. User can edit delete and create items for a specific day.
+7. User can search an event by keyword: This should flip to the month that the event occurs on and highlight that day in some way.
+8. Maybe instead of a popup when a day is clicked or touched an info box at the bottom will populate (this would require less clicks to navigate between days)
+9. Display weather on each of the days (detailed weather in the info box, icon/temp in upper corner of calendar day rectangle)
+10. Calendar will be responsive. More details to come.
+IF TIME PERMITS
+11. Calendar will have users which belong to a family
+12. Some users will have admin rights and be able to assign items to any member of the family
+13. Non admin users can use the app as a task manager for themselves and choose which tasks or items are shared with the family and appear on the family calendar
+14. Items can be nested (Lets say August 24th says grocery shopping. A user could nest their grocery list under the grocery task for that day)
+15. Add reccuring tasks and template tasks (if you do something many times the same way then to have a template to load up with all the nesting already set up would be usefull)
