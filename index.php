@@ -34,6 +34,18 @@ else if(isset($_SESSION['user-id'])){
   }
 
   if(isset($_GET['delete'])){
+    $removingTask = $database->query("SELECT task_time FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
+    if($currentTask != NULL){
+      $updateTask = $currentTask;
+      while(true){
+        $updateTask['task_time'] -= $removingTask['task_time'];
+        $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
+        if($updateTask['parent'] == 0){
+          break;
+        }
+        $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
+      }
+    }
     $database->query("DELETE FROM tasks WHERE id = {$_GET['delete']}");
   }
 
@@ -50,7 +62,18 @@ else if(isset($_SESSION['user-id'])){
     else{
       if(!$database->query("INSERT INTO tasks (parent, user, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$time}, '{$_POST['task']}')")){
         echo 'error';
-      }      
+      }
+      else{
+        $updateTask = $currentTask;
+        while(true){
+          $updateTask['task_time'] += $_POST['task-time'];
+          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
+          if($updateTask['parent'] == 0){
+            break;
+          }
+          $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
+        }
+      }    
     }
   }
 
