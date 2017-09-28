@@ -98,18 +98,22 @@ else if(isset($_SESSION['user-id'])){
     $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
   }
 
+  echo "<div class=\"task-wdg\">";
+
   while($task = $tasks->fetch_assoc()){
     if($task['task_time'] > 60){
       $taskHours = $task['task_time'] / 60;
-      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$taskHours} hrs | {$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";
+      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">{$taskHours} hrs</span><span class=\"text\">{$task['task']}</span></a></div>";
     }
     else if($task['task_time'] > 0){
-      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$task['task_time']} min | {$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";
+      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">{$task['task_time']} min</span><span class=\"text\">{$task['task']}</span></a></div>";
     }
     else{
-      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";      
+      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\"></span><span class=\"text\">{$task['task']}</span></a></div>";      
     }
   }
+
+echo "</div>";
 
 echo <<<EOT2
 <form action="{$_SERVER['REQUEST_URI']}" method="post">

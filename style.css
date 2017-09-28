@@ -1,0 +1,32 @@
+.task-wdg{
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.task-cmp{
+    display: flex;
+    display: -ms-flexbox;
+}
+.task-cmp a{
+    color: #488;
+    text-decoration: none;
+    display: inline-block;
+    padding: .5em;
+    font: 300 1em/1em sans-serif;
+    border-bottom: 1px solid #ddd;
+}
+.task-cmp a:hover{
+    color: #fff;
+    background-color: #488;
+}
+.task-cmp a:nth-of-type(2){
+    flex: 1;
+}
+.task-cmp .time{
+    display: inline-block;
+    width: 5em;
+}
+.task-cmp .text{
+    display: inline-block;
+    width: calc(100% - 5em);
+}
