@@ -60,6 +60,19 @@ else if(isset($_SESSION['user-id'])){
       }
     }
     else{
+      $numSubTasks = $database->query("SELECT * FROM tasks WHERE parent = {$currentTask['id']}")->num_rows;
+      if($numSubTasks == 0){
+        $updateTask = $currentTask;        
+        while(true){
+          $updateTask['task_time'] -= $currentTask['task_time'];
+          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
+          if($updateTask['parent'] == 0){
+            break;
+          }
+          $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
+        }
+        $currentTask['task_time'] = 0;
+      }
       if(!$database->query("INSERT INTO tasks (parent, user, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$time}, '{$_POST['task']}')")){
         echo 'error';
       }
