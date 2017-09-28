@@ -101,13 +101,13 @@ else if(isset($_SESSION['user-id'])){
   while($task = $tasks->fetch_assoc()){
     if($task['task_time'] > 60){
       $taskHours = $task['task_time'] / 60;
-      echo "<div><a href={$CONFIG['url']}?task={$task['id']}>{$taskHours} hrs | {$task['task']}</a><a href={$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}>(X)</a></div>";
+      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$taskHours} hrs | {$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";
     }
     else if($task['task_time'] > 0){
-      echo "<div><a href={$CONFIG['url']}?task={$task['id']}>{$task['task_time']} min | {$task['task']}</a><a href={$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}>(X)</a></div>";
+      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$task['task_time']} min | {$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";
     }
     else{
-      echo "<div><a href={$CONFIG['url']}?task={$task['id']}>{$task['task']}</a><a href={$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}>(X)</a></div>";      
+      echo "<div><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\">{$task['task']}</a><a href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a></div>";      
     }
   }
 
