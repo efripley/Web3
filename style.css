@@ -3,6 +3,29 @@
     max-width: 800px;
     margin: 0 auto;
 }
+.task-wdg .title-cmp{
+    font: 700 1em/1em sans-serif;
+    color: #444;
+    border-bottom: 1px solid #ddd;
+}
+.title-cmp .text{
+    padding: .25em;
+    font-size: 2em;
+}
+.title-cmp .back-arrow{
+    color: #488;
+    text-decoration: none;
+    display: inline-block;
+    width: 1em;
+    padding: .25em;
+    text-align: center;
+    font-size: 2em;
+    line-height: 1em;
+}
+.title-cmp .back-arrow:hover{
+    color: #fff;
+    background-color: #488;
+}
 .task-cmp{
     display: flex;
     display: -ms-flexbox;
@@ -21,6 +44,10 @@
 }
 .task-cmp a:nth-of-type(2){
     flex: 1;
+}
+.task-cmp .close{
+    width: 2em;
+    text-align: center;
 }
 .task-cmp .time{
     display: inline-block;

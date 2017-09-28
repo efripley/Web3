@@ -25,13 +25,6 @@ else if(isset($_SESSION['user-id'])){
   if(isset($_GET['task'])){
     $currentTask = $database->query("SELECT * FROM tasks WHERE id = {$_GET['task']}")->fetch_assoc();
   }
-  if($currentTask == NULL){
-    echo '<h3>Root</h3>';
-  }
-  else{
-    echo "<div><br><a href=\"{$CONFIG['url']}?task={$currentTask['parent']}\"><strong>BACK</strong></a></div>";
-    echo "<h3>{$currentTask['task']}</h3>";
-  }
 
   if(isset($_GET['delete'])){
     $removingTask = $database->query("SELECT task_time FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
@@ -100,6 +93,13 @@ else if(isset($_SESSION['user-id'])){
 
   echo "<div class=\"task-wdg\">";
 
+  if($currentTask == NULL){
+    echo "<div class=\"title-cmp\"><span class=\"text\">Your Root Tasks</span></div>";
+  }
+  else{
+    echo "<div class=\"title-cmp\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span></div>";
+  }
+
   while($task = $tasks->fetch_assoc()){
     if($task['task_time'] > 60){
       $taskHours = $task['task_time'] / 60;
@@ -109,19 +109,19 @@ else if(isset($_SESSION['user-id'])){
       echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">{$task['task_time']} min</span><span class=\"text\">{$task['task']}</span></a></div>";
     }
     else{
-      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\"></span><span class=\"text\">{$task['task']}</span></a></div>";      
+      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">-</span><span class=\"text\">{$task['task']}</span></a></div>";      
     }
   }
 
-echo "</div>";
-
 echo <<<EOT2
-<form action="{$_SERVER['REQUEST_URI']}" method="post">
-  <input type="text" name="task" placeholder="task">
-  <input type="number" name="task-time" placeholder="minutes">
-  <input type="submit" value="Add Task">
+<form action="{$_SERVER['REQUEST_URI']}" method="post"></br>
+  <input type="text" name="task" placeholder="task"><br></br>
+  <input type="number" name="task-time" placeholder="minutes"><br></br>
+  <input type="submit" value="Add Task"><br></br>
 </form>
 EOT2;
+
+  echo "</div>";
 }
 else if(isset($_POST['username'])){
   $user = $database->query("SELECT * FROM users WHERE username = '{$_POST['username']}' AND password = SHA2('{$_POST['password']}', 256)")->fetch_assoc();
