@@ -10,6 +10,8 @@ require_once('functions.php');
 
 connect();
 
+include('head.php');
+
 if(isset($_GET['logout'])){
   $_SESSION['user-id'] = NULL;
   header("Location: {$CONFIG['url']}");
@@ -99,4 +101,6 @@ echo <<<EOT1
 </form>
 EOT1;
 }
+
+include('foot.php');
 ?>
