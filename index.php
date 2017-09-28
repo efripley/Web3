@@ -78,7 +78,7 @@ echo <<<EOT2
 EOT2;
 }
 else if(isset($_POST['username'])){
-  $user = $database->query("SELECT * FROM users WHERE username = '{$_POST['username']}' AND password = '{$_POST['password']}'")->fetch_assoc();
+  $user = $database->query("SELECT * FROM users WHERE username = '{$_POST['username']}' AND password = SHA2('{$_POST['password']}', 256)")->fetch_assoc();
   if(!empty($user)){
     $_SESSION['user-id'] = $user['id'];
     header("Location: {$CONFIG['url']}");
