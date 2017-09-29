@@ -1,7 +1,45 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    margin: 80px 0;
+    background-color: #244;
+}
+form input{
+    width: 100%;
+    font: 400 1em/30px sans-serif;
+    margin: 10px 0;
+    display: block;
+}
+form input[type="submit"]{
+    width: 10em;
+    background-color: #244;
+    color: #fff;
+    border: none;
+}
+.top-bar{
+    background-color: #444;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    color: #fff;
+    font: 400 1.25em/40px sans-serif;
+    padding: 0 25px;
+}
+.top-bar .logout{
+    float: right;
+    color: #fff;
+    text-decoration: none;
+}
+.top-bar .logout:hover{
+    text-decoration: underline;
+}
 .task-wdg{
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
+    background-color: #fff;
+    padding: 1em;
 }
 .task-wdg .title-cmp{
     font: 700 1em/1em sans-serif;
@@ -13,10 +51,10 @@
     font-size: 2em;
 }
 .title-cmp .back-arrow{
-    color: #488;
+    color: #244;
     text-decoration: none;
     display: inline-block;
-    width: 1em;
+    width: 1.5em;
     padding: .25em;
     text-align: center;
     font-size: 2em;
@@ -24,14 +62,14 @@
 }
 .title-cmp .back-arrow:hover{
     color: #fff;
-    background-color: #488;
+    background-color: #244;
 }
 .task-cmp{
     display: flex;
     display: -ms-flexbox;
 }
 .task-cmp a{
-    color: #488;
+    color: #244;
     text-decoration: none;
     display: inline-block;
     padding: .5em;
@@ -40,13 +78,13 @@
 }
 .task-cmp a:hover{
     color: #fff;
-    background-color: #488;
+    background-color: #244;
 }
 .task-cmp a:nth-of-type(2){
     flex: 1;
 }
 .task-cmp .close{
-    width: 2em;
+    width: 3em;
     text-align: center;
 }
 .task-cmp .time{

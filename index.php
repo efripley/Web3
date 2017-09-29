@@ -18,8 +18,7 @@ if(isset($_GET['logout'])){
 }
 else if(isset($_SESSION['user-id'])){
   $user = $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
-  echo "Welcome {$user['username']}";
-  echo "<div><a href=\"{$CONFIG['url']}?logout=true\">Logout</a></div>";
+  echo "<header class=\"top-bar\"><span class=\"name\">{$user['name']}</span><a class=\"logout\" href=\"{$CONFIG['url']}?logout=true\">Logout</a></header>";
 
   $currentTask = NULL;
   if(isset($_GET['task'])){
@@ -94,7 +93,7 @@ else if(isset($_SESSION['user-id'])){
   echo "<div class=\"task-wdg\">";
 
   if($currentTask == NULL){
-    echo "<div class=\"title-cmp\"><span class=\"text\">Your Root Tasks</span></div>";
+    echo "<div class=\"title-cmp\"><span class=\"text\">Master List</span></div>";
   }
   else{
     echo "<div class=\"title-cmp\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span></div>";
@@ -114,10 +113,10 @@ else if(isset($_SESSION['user-id'])){
   }
 
 echo <<<EOT2
-<form action="{$_SERVER['REQUEST_URI']}" method="post"></br>
-  <input type="text" name="task" placeholder="task"><br></br>
-  <input type="number" name="task-time" placeholder="minutes"><br></br>
-  <input type="submit" value="Add Task"><br></br>
+<form action="{$_SERVER['REQUEST_URI']}" method="post">
+  <input type="text" name="task" placeholder="task">
+  <input type="number" name="task-time" placeholder="minutes">
+  <input type="submit" value="Add Task">
 </form>
 EOT2;
 
