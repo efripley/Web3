@@ -10,6 +10,8 @@ form input{
     font: 400 1em/30px sans-serif;
     margin: 10px 0;
     display: block;
+    border: 1px solid #ddd;
+    padding: 0 5px;
 }
 form input[type="submit"]{
     width: 10em;
@@ -33,6 +35,13 @@ form input[type="submit"]{
 }
 .top-bar .logout:hover{
     text-decoration: underline;
+}
+.login-wdg{
+    width:100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 1em;
 }
 .task-wdg{
     width: 100%;

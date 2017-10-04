@@ -137,11 +137,13 @@ else{
     echo 'Incorrect username or password';
   }
 echo <<<EOT1
-<form action="{$CONFIG['url']}/index.php" method="post">
-  <input type="text" name="username" placeholder="username">
-  <input type="password" name="password" placeholder="password">
-  <input type="submit" value="Login!">
-</form>
+<div class="login-wdg">
+  <form action="{$CONFIG['url']}/index.php" method="post">
+    <input type="text" name="username" placeholder="username">
+    <input type="password" name="password" placeholder="password">
+    <input type="submit" value="Login!">
+  </form>
+</div>
 EOT1;
 }
 
