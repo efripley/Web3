@@ -137,6 +137,7 @@ else{
     echo 'Incorrect username or password';
   }
 echo <<<EOT1
+<header class="top-bar"><span class="name">Calendar by newvec</span></header>
 <div class="login-wdg">
   <form action="{$CONFIG['url']}/index.php" method="post">
     <input type="text" name="username" placeholder="username">
