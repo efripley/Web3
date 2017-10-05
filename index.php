@@ -88,7 +88,7 @@ HEAD;
         }
         $currentTask['task_time'] = 0;
       }
-      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$_POST['task-date']}, {$time}, '{$_POST['task']}')")){
+      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$date}, {$time}, '{$_POST['task']}')")){
         echo 'error';
       }
       else{
