@@ -28,12 +28,44 @@ form input[type="submit"]{
     font: 400 1.25em/40px sans-serif;
     padding: 0 25px;
 }
-.top-bar .logout{
+.top-bar .menu{
     float: right;
     color: #fff;
     text-decoration: none;
+    position: relative;
+    padding: 0 15px;
+    width: 5em;
+    cursor: pointer;
+    display: block;
+    text-align: right;
 }
-.top-bar .logout:hover{
+.top-bar .menu.open{
+    background-color: #333;
+    border-bottom: 1px solid #444;
+}
+.top-bar .menu:hover{
+    text-decoration: underline;
+}
+.top-bar .menu .items{
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+}
+.top-bar .menu.open .items{
+    display: block;
+    background-color: #333;
+    border-top: 1px solid #444;
+}
+.top-bar .menu .item{
+    width: 5em;
+    color: #fff;
+    padding: 0 15px;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid #444
+}
+.top-bar .menu .item:hover{
     text-decoration: underline;
 }
 .login-wdg{
@@ -55,18 +87,19 @@ form input[type="submit"]{
     color: #444;
     border-bottom: 1px solid #ddd;
 }
-.title-cmp .text{
-    padding: .25em;
-    font-size: 2em;
+.title-cmp .text,
+.title-cmp .time{
+    padding: .5em;
+    font-size: 1em;
 }
 .title-cmp .back-arrow{
     color: #244;
     text-decoration: none;
     display: inline-block;
-    width: 1.5em;
-    padding: .25em;
+    width: 3em;
+    padding: .5em;
     text-align: center;
-    font-size: 2em;
+    font-size: 1em;
     line-height: 1em;
 }
 .title-cmp .back-arrow:hover{

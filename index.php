@@ -18,7 +18,26 @@ if(isset($_GET['logout'])){
 }
 else if(isset($_SESSION['user-id'])){
   $user = $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
-  echo "<header class=\"top-bar\"><span class=\"name\">{$user['name']}</span><a class=\"logout\" href=\"{$CONFIG['url']}?logout=true\">Logout</a></header>";
+
+$menu = "";
+if(isset($_GET['calendar'])){
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}\">Tasks</a>";
+}
+else{
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar=today\">Today</a>";
+}
+$menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
+echo <<<HEAD
+<header class="top-bar">
+  <span class="name">{$user['name']}</span>
+  <div class="menu" onclick="this.classList.toggle('open');">
+    <span>Menu</span>
+    <div class="items">
+      {$menu}
+    </div>
+  </div>
+</header>
+HEAD;
 
   $currentTask = NULL;
   if(isset($_GET['task'])){
@@ -43,11 +62,15 @@ else if(isset($_SESSION['user-id'])){
 
   if(isset($_POST['task'])){
     $time = 0;
+    $date = 'NULL';
     if($_POST['task-time'] > 0){
       $time = $_POST['task-time'];
     }
+    if($_POST['task-date'] != ''){
+      $date = "'" . $_POST['task-date'] . "'";
+    }
     if($currentTask == NULL){
-      if(!$database->query("INSERT INTO tasks (parent, user, task_time, task) VALUES (0, {$user['id']}, {$time}, '{$_POST['task']}')")){
+      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (0, {$user['id']}, {$date}, {$time}, '{$_POST['task']}')")){
         echo 'error';
       }
     }
@@ -65,7 +88,7 @@ else if(isset($_SESSION['user-id'])){
         }
         $currentTask['task_time'] = 0;
       }
-      if(!$database->query("INSERT INTO tasks (parent, user, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$time}, '{$_POST['task']}')")){
+      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$_POST['task-date']}, {$time}, '{$_POST['task']}')")){
         echo 'error';
       }
       else{
@@ -86,17 +109,35 @@ else if(isset($_SESSION['user-id'])){
   if(isset($_GET['task'])){
     $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['task']}");
   }
+  else if($_GET['calendar'] == 'today'){
+    $today = date("Y-m-d");
+    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'");
+  }
   else{
     $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
   }
 
   echo "<div class=\"task-wdg\">";
 
-  if($currentTask == NULL){
-    echo "<div class=\"title-cmp\"><span class=\"text\">Master List</span></div>";
+  if($_GET['calendar'] == 'today'){
+    $today = date("Y-m-d");
+    $totalTime = $database->query("SELECT SUM(task_time) AS sum FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'")->fetch_assoc()['sum'];
+    $totalTime = $totalTime / 60;
+    echo "<div class=\"title-cmp\"><span class=\"time\">{$totalTime} hrs</span><span class=\"text\">Today</span></div>";
+  }
+  else if($currentTask == NULL){
+    echo "<div class=\"title-cmp\"><span class=\"text\">The List</span></div>";
   }
   else{
-    echo "<div class=\"title-cmp\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span></div>";
+    $taskHours = $currentTask['task_time'] / 60;
+    echo "<div class=\"title-cmp\">";
+    echo "<div class=\"top\">";
+    echo "<span class=\"time\">{$taskHours} hrs</span>";
+    echo "<span class=\"date\">Due: {$currentTask['task_date']}</span>";
+    echo "</div>";
+    echo "<div class=\"bottom\">";
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span>";
+    echo "</div>";
   }
 
   while($task = $tasks->fetch_assoc()){
@@ -112,13 +153,16 @@ else if(isset($_SESSION['user-id'])){
     }
   }
 
+  if(!isset($_GET['calendar'])){
 echo <<<EOT2
 <form action="{$_SERVER['REQUEST_URI']}" method="post">
   <input type="text" name="task" placeholder="task">
   <input type="number" name="task-time" placeholder="minutes">
+  <input type="date" name="task-date" placeholder="date">
   <input type="submit" value="Add Task">
 </form>
 EOT2;
+  }
 
   echo "</div>";
 }
