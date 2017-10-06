@@ -105,6 +105,11 @@ form input[type="submit"]:hover{
 .title-cmp .time{
     padding: 8px;
     font-size: .8em;
+    cursor: pointer;
+}
+.title-cmp .date:hover,
+.title-cmp .time:hover{
+    text-decoration: underline;
 }
 .title-cmp .back-arrow{
     background-color: #244;
@@ -153,4 +158,36 @@ form input[type="submit"]:hover{
 .task-cmp .text{
     display: inline-block;
     width: calc(100% - 5em);
+}
+.editor-cmp{
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, .75)
+}
+.editor-cmp.visible{
+    display: flex !important;
+}
+.editor-cmp .wrap{
+    background-color: #fff;
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    padding: 1em;
+}
+.editor-cmp .close{
+    cursor: pointer;
+    background-color: #244;
+    border: 1px solid #244;
+    color: #fff;
+    width: 3em;
+    text-align: center;
+    padding: .5em;
+}
+.editor-cmp .close:hover{
+    color: #244;
+    background-color: #fff;
 }

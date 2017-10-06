@@ -26,6 +26,9 @@ if(isset($_GET['calendar'])){
 else{
   $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar=today\">Today</a>";
 }
+if($_GET['submit'] == 'Change Date'){
+  $database->query("UPDATE tasks SET task_date = '{$_GET['data']}' WHERE user = {$user['id']} AND id = {$_GET['task']}");
+}
 $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
 echo <<<HEAD
 <header class="top-bar">
@@ -136,7 +139,12 @@ HEAD;
     echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a>";
     echo "<div class=\"task-info\">";
     echo "<span class=\"time\">{$taskHours} hrs</span>";
-    echo "<span class=\"date\">Due: {$currentTask['task_date']}</span>";
+    if($currentTask['task_date'] != ''){
+      echo "<span id=\"task-date\" class=\"date\">{$currentTask['task_date']}</span>";
+    }
+    else{
+      echo "<span id=\"task-date\" class=\"date\">Schedule Task</span>";
+    }
     echo "</div>";
     echo "</div>";
     echo "<div class=\"bottom\">";
