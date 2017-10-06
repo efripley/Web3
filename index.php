@@ -138,6 +138,7 @@ HEAD;
     echo "<div class=\"bottom\">";
     echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span>";
     echo "</div>";
+    echo "</div>";
   }
 
   while($task = $tasks->fetch_assoc()){
