@@ -30,11 +30,11 @@
     }
 
     if(document.getElementById('task-time')){
-      document.getElementById('task-time').onclick = toggleTaskDateEditor;
-      document.getElementById('time-editor').getElementsByClassName('close')[0].onclick = toggleTaskDateEditor;
+      document.getElementById('task-time').onclick = toggleTaskTimeEditor;
+      document.getElementById('time-editor').getElementsByClassName('close')[0].onclick = toggleTaskTimeEditor;
     }
 
-    function toggleTaskDateEditor(){
+    function toggleTaskTimeEditor(){
       document.getElementById('time-editor').classList.toggle('visible');
     }    
   </script>
