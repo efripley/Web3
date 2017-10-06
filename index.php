@@ -27,7 +27,12 @@ else{
   $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar=today\">Today</a>";
 }
 if($_GET['submit'] == 'Change Date'){
-  $database->query("UPDATE tasks SET task_date = '{$_GET['data']}' WHERE user = {$user['id']} AND id = {$_GET['task']}");
+  $editDate = 'NULL';
+  if($_GET['data'] != ''){
+    $editDate = "'" . $_GET['data'] . "'";
+  }
+  echo $editDate;
+  $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['task']}");
 }
 $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
 echo <<<HEAD
