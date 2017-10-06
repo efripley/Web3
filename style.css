@@ -101,15 +101,20 @@ form input[type="submit"]:hover{
     padding: 16px;
     display: block;
 }
+.title-cmp .date-text{
+    width: 7em;
+    text-align: center;
+    display: inline-block;
+}
 .title-cmp .date,
 .title-cmp .time{
     padding: 8px;
     font-size: .8em;
-    cursor: pointer;
 }
 .title-cmp .date:hover,
-.title-cmp .time:hover{
+.title-cmp .time#task-time:hover{
     text-decoration: underline;
+    cursor: pointer;
 }
 .title-cmp .back-arrow{
     background-color: #244;

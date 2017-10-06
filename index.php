@@ -20,19 +20,24 @@ else if(isset($_SESSION['user-id'])){
   $user = $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
 
 $menu = "";
+$today = date('Y-m-d');
 if(isset($_GET['calendar'])){
   $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}\">Tasks</a>";
 }
 else{
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar=today\">Today</a>";
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar={$today}\">Today</a>";
 }
 if($_GET['submit'] == 'Change Date'){
   $editDate = 'NULL';
   if($_GET['data'] != ''){
     $editDate = "'" . $_GET['data'] . "'";
   }
-  echo $editDate;
   $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['task']}");
+}
+if($_GET['submit'] == 'Change Time'){
+  if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['task']}")->num_rows <= 0){
+    $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['task']}");
+  }
 }
 $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
 echo <<<HEAD
@@ -118,9 +123,9 @@ HEAD;
   if(isset($_GET['task'])){
     $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['task']}");
   }
-  else if($_GET['calendar'] == 'today'){
-    $today = date("Y-m-d");
-    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'");
+  else if(isset($_GET['calendar'])){
+    $date = $_GET['calendar'];
+    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}'");
   }
   else{
     $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
@@ -128,22 +133,33 @@ HEAD;
 
   echo "<div class=\"task-wdg\">";
 
-  if($_GET['calendar'] == 'today'){
-    $today = date("Y-m-d");
+  if(isset($_GET['calendar'])){
+    $today = $_GET['calendar'];
     $totalTime = $database->query("SELECT SUM(task_time) AS sum FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'")->fetch_assoc()['sum'];
     $totalTime = $totalTime / 60;
-    echo "<div class=\"title-cmp\"><span class=\"time\">{$totalTime} hrs</span><span class=\"text\">Today</span></div>";
+    $text = $_GET['calendar'];
+    if($_GET['calendar'] == date('Y-m-d'))
+      $text = 'Today';
+    $yesterday = date('Y-m-d', strtotime($_GET['calendar'] . ' -1 day'));
+    $tomorrow = date('Y-m-d', strtotime($_GET['calendar'] . ' +1 day')); 
+    echo "<div class=\"title-cmp\"><span class=\"time\">{$totalTime} hrs</span><span class=\"text\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$yesterday}\">&lsaquo;</a><span class=\"date-text\">{$text}</span><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$tomorrow}\">&rsaquo;</a></span></div>";
   }
   else if($currentTask == NULL){
     echo "<div class=\"title-cmp\"><span class=\"text\">The List</span></div>";
   }
   else{
     $taskHours = $currentTask['task_time'] / 60;
+    $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentTask['id']}")->num_rows;
     echo "<div class=\"title-cmp\">";
     echo "<div class=\"top\">";
     echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a>";
     echo "<div class=\"task-info\">";
-    echo "<span class=\"time\">{$taskHours} hrs</span>";
+    if($numSubTasks > 0){
+      echo "<span class=\"time\">{$taskHours} hrs</span>";
+    }
+    else{
+      echo "<span id=\"task-time\" class=\"time\">{$taskHours} hrs</span>";
+    }
     if($currentTask['task_date'] != ''){
       echo "<span id=\"task-date\" class=\"date\">{$currentTask['task_date']}</span>";
     }
