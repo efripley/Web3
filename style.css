@@ -17,7 +17,12 @@ form input[type="submit"]{
     width: 10em;
     background-color: #244;
     color: #fff;
-    border: none;
+    border: 1px solid #244;
+}
+form input[type="submit"]:hover{
+    color: #244;
+    cursor: pointer;
+    background-color: #fff;
 }
 .top-bar{
     background-color: #444;
@@ -87,13 +92,23 @@ form input[type="submit"]{
     color: #444;
     border-bottom: 1px solid #ddd;
 }
-.title-cmp .text,
+.title-cmp .top{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.title-cmp .text{
+    padding: 16px;
+    display: block;
+}
+.title-cmp .date,
 .title-cmp .time{
-    padding: .5em;
-    font-size: 1em;
+    padding: 8px;
+    font-size: .8em;
 }
 .title-cmp .back-arrow{
-    color: #244;
+    background-color: #244;
+    color: #fff;
     text-decoration: none;
     display: inline-block;
     width: 3em;
@@ -101,10 +116,12 @@ form input[type="submit"]{
     text-align: center;
     font-size: 1em;
     line-height: 1em;
+    border: 1px solid #244
 }
 .title-cmp .back-arrow:hover{
-    color: #fff;
-    background-color: #244;
+    color: #244;
+    background-color: #fff;
+    border: 1px solid #244;
 }
 .task-cmp{
     display: flex;

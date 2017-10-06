@@ -48,6 +48,7 @@ HEAD;
     $removingTask = $database->query("SELECT task_time FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
     if($currentTask != NULL){
       $updateTask = $currentTask;
+      $currentTask['task_time'] -= $removingTask['task_time'];
       while(true){
         $updateTask['task_time'] -= $removingTask['task_time'];
         $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
@@ -132,11 +133,14 @@ HEAD;
     $taskHours = $currentTask['task_time'] / 60;
     echo "<div class=\"title-cmp\">";
     echo "<div class=\"top\">";
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a>";
+    echo "<div class=\"task-info\">";
     echo "<span class=\"time\">{$taskHours} hrs</span>";
     echo "<span class=\"date\">Due: {$currentTask['task_date']}</span>";
     echo "</div>";
+    echo "</div>";
     echo "<div class=\"bottom\">";
-    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a><span class=\"text\">{$currentTask['task']}</span>";
+    echo "<span class=\"text\">{$currentTask['task']}</span>";
     echo "</div>";
     echo "</div>";
   }
