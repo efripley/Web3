@@ -39,18 +39,25 @@ function buildMonth($items, $year, $month){
       echo "
       <span class=\"day-cmp empty\">
         <span class=\"day-number\"></span>
+        <span class=\"day-item\"></span>
+        <span class=\"day-item\"></span>
+        <span class=\"day-item\"></span>
         <span class=\"day-hrs\"></span>
       </span>
       ";
     }
   }
   $day = 1;
+  $itemText = [];
   $item = $items->fetch_assoc();
   while(true){
     $dayString = sprintf("%02d", $day);
     $date = "{$year}-{$month}-{$dayString}";
     if($date == $item['task_date']){
       $time += $item['task_time'];
+      if(count($itemText) < 3){
+        array_push($itemText, $item['task']);
+      }
       $item = $items->fetch_assoc();
     }
     else{
@@ -61,13 +68,20 @@ function buildMonth($items, $year, $month){
       $timeString = '';
       if($time > 0)
         $timeString = ($time / 60) . 'hrs';
+        $item1 = ($itemText[0]) ?: '';
+        $item2 = ($itemText[1]) ?: '';
+        $item3 = ($itemText[2]) ?: '';
       echo "
       <a class=\"day-cmp {$todayClass}\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$dayString}\">
         <span class=\"day-number\">{$day}</span>
+        <span class=\"day-item\">$item1</span>
+        <span class=\"day-item\">$item2</span>
+        <span class=\"day-item\">$item3</span>
         <span class=\"day-hrs\">{$timeString}</span>
       </a>
       ";
       $time = 0;
+      $itemText = [];
       $day += 1;
       if($day > $totalDays)
         break;
