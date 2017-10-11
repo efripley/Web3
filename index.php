@@ -21,11 +21,15 @@ else if(isset($_SESSION['user-id'])){
 
 $menu = "";
 $today = date('Y-m-d');
-if(isset($_GET['calendar'])){
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}\">Items</a>";
+$year = date('Y');
+$month = date('m');
+$day = date('d');
+
+if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
 }
-else{
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar={$today}\">Today</a>";
+if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
 }
 if(isset($_GET['submit'])){
   if($_GET['submit'] == 'Update Date'){
@@ -123,7 +127,12 @@ HEAD;
 
   $items = NULL;
   if($_GET['view'] == 'items'){
-    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}");
+    if(isset($_GET['item'])){
+      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}");
+    }
+    else{
+      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
+    }
   }
   else if($_GET['view'] == 'month'){
     $day = $_GET['day'];
@@ -132,28 +141,39 @@ HEAD;
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date");
   }
   else if($_GET['view'] == 'day'){
-
-  }
-  else if(isset($_GET['calendar'])){
-    $date = $_GET['calendar'];
+    $date = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}'");
   }
   else{
-    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
+    header("Location: {$CONFIG['url']}?view=items");
+    exit();
   }
 
   echo "<div class=\"task-wdg\">";
 
-  if(isset($_GET['calendar'])){
-    $today = $_GET['calendar'];
+  if($_GET['view'] == 'day'){
+    $today = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
     $totalTime = $database->query("SELECT SUM(task_time) AS sum FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'")->fetch_assoc()['sum'];
     $totalTime = $totalTime / 60;
-    $text = $_GET['calendar'];
-    if($_GET['calendar'] == date('Y-m-d'))
+    $text = $today;
+    if($today == date('Y-m-d'))
       $text = 'Today';
-    $yesterday = date('Y-m-d', strtotime($_GET['calendar'] . ' -1 day'));
-    $tomorrow = date('Y-m-d', strtotime($_GET['calendar'] . ' +1 day')); 
-    echo "<div class=\"title-cmp\"><span class=\"time\">{$totalTime} hrs</span><span class=\"text\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$yesterday}\">&lsaquo;</a><span class=\"date-text\">{$text}</span><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$tomorrow}\">&rsaquo;</a></span></div>";
+    $yesterday = date('Y-m-d', strtotime($today . ' -1 day'));
+    $tomorrow = date('Y-m-d', strtotime($today . ' +1 day')); 
+    echo "<div class=\"title-cmp\">
+            <span class=\"time\">{$totalTime} hrs</span>
+            <span class=\"text\">";
+    $year = date('Y', strtotime($yesterday));
+    $month = date('m', strtotime($yesterday));
+    $day = date('d', strtotime($yesterday));
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$day}\">&lsaquo;</a>
+          <span class=\"date-text\">{$text}</span>";
+    $year = date('Y', strtotime($tomorrow));
+    $month = date('m', strtotime($tomorrow));
+    $day = date('d', strtotime($tomorrow));
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$day}\">&rsaquo;</a>
+        </span>
+      </div>";
   }
   else if($_GET['view'] == 'month'){
     
@@ -166,7 +186,7 @@ HEAD;
     $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentItem['id']}")->num_rows;
     echo "<div class=\"title-cmp\">";
     echo "<div class=\"top\">";
-    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?item={$currentItem['parent']}\">&lsaquo;</a>";
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?view=items&item={$currentItem['parent']}\">&lsaquo;</a>";
     echo "<div class=\"task-info\">";
     if($numSubTasks > 0){
       echo "<span class=\"time\">{$itemHours} hrs</span>";
