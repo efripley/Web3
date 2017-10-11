@@ -233,3 +233,15 @@ form input[type="submit"]:hover{
     padding: 10px;
     color: #333;
 }
+.day-cmp .day-item{
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    height: 1.25em;
+    font-size: .75em;
+}
+@media(max-width: 800px){
+    .day-cmp .day-item{
+        display: none;
+    }
+}

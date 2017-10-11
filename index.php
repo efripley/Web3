@@ -78,6 +78,8 @@ HEAD;
       }
     }
     $database->query("DELETE FROM tasks WHERE id = {$_GET['delete']}");
+    header('location: ' . $_SERVER['HTTP_REFERER']);
+    exit();
   }
 
   if(isset($_POST['item'])){
@@ -243,7 +245,12 @@ else if(isset($_POST['username'])){
   $user = $database->query("SELECT * FROM users WHERE username = '{$_POST['username']}' AND password = SHA2('{$_POST['password']}', 256)")->fetch_assoc();
   if(!empty($user)){
     $_SESSION['user-id'] = $user['id'];
-    header("Location: {$CONFIG['url']}");
+    if(isset($_GET['login'])){
+      header("Location: {$CONFIG['url']}?view=items");
+    }
+    else{
+      header("location: {$_SERVER['HTTP_REFERER']}");
+    }
   }
   else{
     header("Location: {$CONFIG['url']}?login=false");
