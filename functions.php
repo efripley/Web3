@@ -17,6 +17,7 @@ function buildMonth($items, $year, $month){
   $dayString = sprintf("%02d", $day);
   $date = "{$year}-{$month}-{$dayString}";
   $firstDay = date('N', strtotime($date));
+  $totalDays = date('t', strtotime($date));
   if($firstDay < 7){
     for($a = 0; $a < $firstDay; $a++){
       echo "
@@ -51,7 +52,7 @@ function buildMonth($items, $year, $month){
       ";
       $time = 0;
       $day += 1;
-      if($day > 31)
+      if($day > $totalDays)
         break;
     }
   }
