@@ -206,7 +206,8 @@ form input[type="submit"]:hover{
     color: #333;
     text-decoration: none;
 }
-.day-cmp:hover{
+.day-cmp:hover,
+.day-cmp.today{
     color: #fff;
     background-color: #244;
 }

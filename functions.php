@@ -22,11 +22,15 @@ function buildMonth($items, $year, $month){
       $item = $items->fetch_assoc();
     }
     else{
+      $todayClass = '';
+      if($date == date('Y-m-d')){
+        $todayClass = "today";
+      }
       $timeString = '';
       if($time > 0)
         $timeString = ($time / 60) . 'hrs';
       echo "
-      <a class=\"day-cmp\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$dayString}\">
+      <a class=\"day-cmp {$todayClass}\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$dayString}\">
         <span class=\"day-number\">{$day}</span>
         <span class=\"day-hrs\">{$timeString}</span>
       </a>
