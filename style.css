@@ -220,3 +220,11 @@ form input[type="submit"]:hover{
     line-height: 1.25em;
     height: 1.25em;
 }
+.day-titles span{
+    width: calc(100% / 7);
+    display: block;
+    float: left;
+    text-align: center;
+    padding: 10px;
+    color: #333;
+}

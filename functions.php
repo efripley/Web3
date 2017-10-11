@@ -13,6 +13,20 @@ function buildMonth($items, $year, $month){
   $day = 1;
   $hours = 0;
   echo "<div class=\"title-cmp\"><span class=\"text\">{$monthString}</span></div>";
+  echo "<div class=\"day-titles\"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>";
+  $dayString = sprintf("%02d", $day);
+  $date = "{$year}-{$month}-{$dayString}";
+  $firstDay = date('N', strtotime($date));
+  if($firstDay < 7){
+    for($a = 0; $a < $firstDay; $a++){
+      echo "
+      <span class=\"day-cmp empty\">
+        <span class=\"day-number\"></span>
+        <span class=\"day-hrs\"></span>
+      </span>
+      ";
+    }
+  }
   $item = $items->fetch_assoc();
   while(true){
     $dayString = sprintf("%02d", $day);
