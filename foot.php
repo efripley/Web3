@@ -3,9 +3,10 @@
     <div class="wrap">
       <div class="close">&lsaquo;</div>
       <form action="<?php echo $CONFIG['url']; ?>" method="GET">
-        <input type="hidden" name="task" value="<?php echo $_GET['task']?>">
-        <input type="date" name="data">
-        <input type="submit" name="submit" value="Change Date">
+        <input type="hidden" name="view" value="<?php echo $_GET['view']?>">
+        <input type="hidden" name="item" value="<?php echo $_GET['item']?>">
+        <input type="date" name="data" value="<?php echo $currentItem['task_date'];?>">
+        <input type="submit" name="submit" value="Update Date">
       </form>
     </div>
   </div>
@@ -13,9 +14,10 @@
     <div class="wrap">
       <div class="close">&lsaquo;</div>
       <form action="<?php echo $CONFIG['url']; ?>" method="GET">
-        <input type="hidden" name="task" value="<?php echo $_GET['task']?>">
-        <input type="number" name="data" value="<?php echo $currentTask['task_time'];?>">
-        <input type="submit" name="submit" value="Change Time">
+        <input type="hidden" name="view" value="<?php echo $_GET['view']?>">
+        <input type="hidden" name="item" value="<?php echo $_GET['item']?>">
+        <input type="number" name="data" value="<?php echo $currentItem['task_time'];?>">
+        <input type="submit" name="submit" value="Update Time">
       </form>
     </div>
   </div>
@@ -36,7 +38,7 @@
 
     function toggleTaskTimeEditor(){
       document.getElementById('time-editor').classList.toggle('visible');
-    }    
+    }
   </script>
   </body>
 

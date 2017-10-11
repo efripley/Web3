@@ -196,3 +196,25 @@ form input[type="submit"]:hover{
     color: #244;
     background-color: #fff;
 }
+.day-cmp{
+    width: calc(100% / 7);
+    display: block;
+    float: left;
+    height: auto;
+    border: 1px solid #244;
+    padding: 5px;
+    color: #333;
+    text-decoration: none;
+}
+.day-cmp:hover{
+    color: #fff;
+    background-color: #244;
+}
+.day-cmp .day-hrs{
+    display: block;
+    margin-top: 5px;
+    text-align: right;
+    font-size: .75em;
+    line-height: 1.25em;
+    height: 1.25em;
+}

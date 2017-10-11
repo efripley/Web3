@@ -22,21 +22,23 @@ else if(isset($_SESSION['user-id'])){
 $menu = "";
 $today = date('Y-m-d');
 if(isset($_GET['calendar'])){
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}\">Tasks</a>";
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}\">Items</a>";
 }
 else{
   $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?calendar={$today}\">Today</a>";
 }
-if($_GET['submit'] == 'Change Date'){
-  $editDate = 'NULL';
-  if($_GET['data'] != ''){
-    $editDate = "'" . $_GET['data'] . "'";
+if(isset($_GET['submit'])){
+  if($_GET['submit'] == 'Update Date'){
+    $editDate = 'NULL';
+    if($_GET['data'] != ''){
+      $editDate = "'" . $_GET['data'] . "'";
+    }
+    $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
   }
-  $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['task']}");
-}
-if($_GET['submit'] == 'Change Time'){
-  if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['task']}")->num_rows <= 0){
-    $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['task']}");
+  if($_GET['submit'] == 'Update Time'){
+    if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
+      $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+    }
   }
 }
 $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
@@ -52,16 +54,16 @@ echo <<<HEAD
 </header>
 HEAD;
 
-  $currentTask = NULL;
-  if(isset($_GET['task'])){
-    $currentTask = $database->query("SELECT * FROM tasks WHERE id = {$_GET['task']}")->fetch_assoc();
+  $currentItem = NULL;
+  if(isset($_GET['item'])){
+    $currentItem = $database->query("SELECT * FROM tasks WHERE id = {$_GET['item']}")->fetch_assoc();
   }
 
   if(isset($_GET['delete'])){
     $removingTask = $database->query("SELECT task_time FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
-    if($currentTask != NULL){
-      $updateTask = $currentTask;
-      $currentTask['task_time'] -= $removingTask['task_time'];
+    if($currentItem != NULL){
+      $updateTask = $currentItem;
+      $currentItem['task_time'] -= $removingTask['task_time'];
       while(true){
         $updateTask['task_time'] -= $removingTask['task_time'];
         $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
@@ -74,41 +76,41 @@ HEAD;
     $database->query("DELETE FROM tasks WHERE id = {$_GET['delete']}");
   }
 
-  if(isset($_POST['task'])){
+  if(isset($_POST['item'])){
     $time = 0;
     $date = 'NULL';
-    if($_POST['task-time'] > 0){
-      $time = $_POST['task-time'];
+    if($_POST['item-time'] > 0){
+      $time = $_POST['item-time'];
     }
-    if($_POST['task-date'] != ''){
-      $date = "'" . $_POST['task-date'] . "'";
+    if($_POST['item-date'] != ''){
+      $date = "'" . $_POST['item-date'] . "'";
     }
-    if($currentTask == NULL){
-      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (0, {$user['id']}, {$date}, {$time}, '{$_POST['task']}')")){
+    if($currentItem == NULL){
+      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (0, {$user['id']}, {$date}, {$time}, '{$_POST['item']}')")){
         echo 'error';
       }
     }
     else{
-      $numSubTasks = $database->query("SELECT * FROM tasks WHERE parent = {$currentTask['id']}")->num_rows;
+      $numSubTasks = $database->query("SELECT * FROM tasks WHERE parent = {$currentItem['id']}")->num_rows;
       if($numSubTasks == 0){
-        $updateTask = $currentTask;        
+        $updateTask = $currentItem;        
         while(true){
-          $updateTask['task_time'] -= $currentTask['task_time'];
+          $updateTask['task_time'] -= $currentItem['task_time'];
           $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
           if($updateTask['parent'] == 0){
             break;
           }
           $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
         }
-        $currentTask['task_time'] = 0;
+        $currentItem['task_time'] = 0;
       }
-      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['task']}, {$user['id']}, {$date}, {$time}, '{$_POST['task']}')")){
+      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['item']}, {$user['id']}, {$date}, {$time}, '{$_POST['item']}')")){
         echo 'error';
       }
       else{
-        $updateTask = $currentTask;
+        $updateTask = $currentItem;
         while(true){
-          $updateTask['task_time'] += $_POST['task-time'];
+          $updateTask['task_time'] += $_POST['item-time'];
           $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
           if($updateTask['parent'] == 0){
             break;
@@ -119,16 +121,25 @@ HEAD;
     }
   }
 
-  $tasks = NULL;
-  if(isset($_GET['task'])){
-    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['task']}");
+  $items = NULL;
+  if($_GET['view'] == 'items'){
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}");
+  }
+  else if($_GET['view'] == 'month'){
+    $day = $_GET['day'];
+    $month = $_GET['month'];
+    $year = $_GET['year'];
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date");
+  }
+  else if($_GET['view'] == 'day'){
+
   }
   else if(isset($_GET['calendar'])){
     $date = $_GET['calendar'];
-    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}'");
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}'");
   }
   else{
-    $tasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
   }
 
   echo "<div class=\"task-wdg\">";
@@ -144,56 +155,64 @@ HEAD;
     $tomorrow = date('Y-m-d', strtotime($_GET['calendar'] . ' +1 day')); 
     echo "<div class=\"title-cmp\"><span class=\"time\">{$totalTime} hrs</span><span class=\"text\"><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$yesterday}\">&lsaquo;</a><span class=\"date-text\">{$text}</span><a class=\"back-arrow\" href=\"{$CONFIG['url']}?calendar={$tomorrow}\">&rsaquo;</a></span></div>";
   }
-  else if($currentTask == NULL){
-    echo "<div class=\"title-cmp\"><span class=\"text\">The List</span></div>";
+  else if($_GET['view'] == 'month'){
+    
+  }
+  else if($currentItem == NULL){
+    echo "<div class=\"title-cmp\"><span class=\"text\">Items</span></div>";
   }
   else{
-    $taskHours = $currentTask['task_time'] / 60;
-    $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentTask['id']}")->num_rows;
+    $itemHours = $currentItem['task_time'] / 60;
+    $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentItem['id']}")->num_rows;
     echo "<div class=\"title-cmp\">";
     echo "<div class=\"top\">";
-    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?task={$currentTask['parent']}\">&lsaquo;</a>";
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?item={$currentItem['parent']}\">&lsaquo;</a>";
     echo "<div class=\"task-info\">";
     if($numSubTasks > 0){
-      echo "<span class=\"time\">{$taskHours} hrs</span>";
+      echo "<span class=\"time\">{$itemHours} hrs</span>";
     }
     else{
-      echo "<span id=\"task-time\" class=\"time\">{$taskHours} hrs</span>";
+      echo "<span id=\"task-time\" class=\"time\">{$itemHours} hrs</span>";
     }
-    if($currentTask['task_date'] != ''){
-      echo "<span id=\"task-date\" class=\"date\">{$currentTask['task_date']}</span>";
+    if($currentItem['task_date'] != ''){
+      echo "<span id=\"task-date\" class=\"date\">{$currentItem['task_date']}</span>";
     }
     else{
-      echo "<span id=\"task-date\" class=\"date\">Schedule Task</span>";
+      echo "<span id=\"task-date\" class=\"date\">Schedule Item</span>";
     }
     echo "</div>";
     echo "</div>";
     echo "<div class=\"bottom\">";
-    echo "<span class=\"text\">{$currentTask['task']}</span>";
+    echo "<span class=\"text\">{$currentItem['task']}</span>";
     echo "</div>";
     echo "</div>";
   }
 
-  while($task = $tasks->fetch_assoc()){
-    if($task['task_time'] > 60){
-      $taskHours = $task['task_time'] / 60;
-      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">{$taskHours} hrs</span><span class=\"text\">{$task['task']}</span></a></div>";
-    }
-    else if($task['task_time'] > 0){
-      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">{$task['task_time']} min</span><span class=\"text\">{$task['task']}</span></a></div>";
-    }
-    else{
-      echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?task={$task['parent']}&delete={$task['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?task={$task['id']}\" title=\"follow item\"><span class=\"time\">-</span><span class=\"text\">{$task['task']}</span></a></div>";      
+  if($_GET['view'] == 'month'){
+    buildMonth($items, $year, $month);
+  }
+  else{
+    while($item = $items->fetch_assoc()){
+      if($item['task_time'] > 60){
+        $itemHours = $item['task_time'] / 60;
+        echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">{$itemHours} hrs</span><span class=\"text\">{$item['task']}</span></a></div>";
+      }
+      else if($item['task_time'] > 0){
+        echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">{$item['task_time']} min</span><span class=\"text\">{$item['task']}</span></a></div>";
+      }
+      else{
+        echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">-</span><span class=\"text\">{$item['task']}</span></a></div>";      
+      }
     }
   }
 
   if(!isset($_GET['calendar'])){
 echo <<<EOT2
 <form action="{$_SERVER['REQUEST_URI']}" method="post">
-  <input type="text" name="task" placeholder="task">
-  <input type="number" name="task-time" placeholder="minutes">
-  <input type="date" name="task-date" placeholder="date">
-  <input type="submit" value="Add Task">
+  <input type="text" name="item" placeholder="item">
+  <input type="number" name="item-time" placeholder="minutes">
+  <input type="date" name="item-date" placeholder="date">
+  <input type="submit" name="submit" value="Add Item">
 </form>
 EOT2;
   }
