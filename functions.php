@@ -41,16 +41,5 @@ function buildMonth($items, $year, $month){
         break;
     }
   }
-    // if($item['task_time'] > 60){
-    //   $itemHours = $item['task_time'] / 60;
-    //   echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">{$itemHours} hrs</span><span class=\"text\">{$item['task']}</span></a></div>";
-    // }
-    // else if($item['task_time'] > 0){
-    //   echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">{$item['task_time']} min</span><span class=\"text\">{$item['task']}</span></a></div>";
-    // }
-    // else{
-    //   echo "<div class=\"task-cmp\"><a class=\"close\" href=\"{$CONFIG['url']}?item={$item['parent']}&delete={$item['id']}\" title=\"delete item\">(X)</a><a href=\"{$CONFIG['url']}?view=items&item={$item['id']}\" title=\"follow item\"><span class=\"time\">-</span><span class=\"text\">{$item['task']}</span></a></div>";      
-    // }
-  //}
 }
 ?>

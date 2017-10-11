@@ -226,7 +226,7 @@ HEAD;
     }
   }
 
-  if(!isset($_GET['calendar'])){
+  if($_GET['view'] == 'items'){
 echo <<<EOT2
 <form action="{$_SERVER['REQUEST_URI']}" method="post">
   <input type="text" name="item" placeholder="item">
