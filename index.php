@@ -19,32 +19,32 @@ if(isset($_GET['logout'])){
 else if(isset($_SESSION['user-id'])){
   $user = $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
 
-$menu = "";
-$today = date('Y-m-d');
-$year = date('Y');
-$month = date('m');
-$day = date('d');
+  $menu = "";
+  $today = date('Y-m-d');
+  $year = date('Y');
+  $month = date('m');
+  $day = date('d');
 
-if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
-}
-if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
-  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
-}
-if(isset($_GET['submit'])){
-  if($_GET['submit'] == 'Update Date'){
-    $editDate = 'NULL';
-    if($_GET['data'] != ''){
-      $editDate = "'" . $_GET['data'] . "'";
-    }
-    $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+  if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
   }
-  if($_GET['submit'] == 'Update Time'){
-    if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
-      $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+  if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
+  }
+  if(isset($_GET['submit'])){
+    if($_GET['submit'] == 'Update Date'){
+      $editDate = 'NULL';
+      if($_GET['data'] != ''){
+        $editDate = "'" . $_GET['data'] . "'";
+      }
+      $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+    }
+    if($_GET['submit'] == 'Update Time'){
+      if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
+        $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+      }
     }
   }
-}
 $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
 echo <<<HEAD
 <header class="top-bar">
@@ -82,69 +82,80 @@ HEAD;
     exit();
   }
 
-  if(isset($_POST['item'])){
+  if(isset($_POST['item']) && !empty($_POST['item'])){
     $time = 0;
-    $date = 'NULL';
+    $date = NULL;
     if($_POST['item-time'] > 0){
       $time = $_POST['item-time'];
     }
     if($_POST['item-date'] != ''){
-      $date = "'" . $_POST['item-date'] . "'";
+      $date = $_POST['item-date'];
     }
     if($currentItem == NULL){
-      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (0, {$user['id']}, {$date}, {$time}, '{$_POST['item']}')")){
-        echo 'error';
+      $parentId = 0;
+      if (!($prep = $database->prepare("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (?, ?, ?, ?, ?)"))) {
+        echo "Prepare failed: (" . $prep->errno . ") " . $prep->error;
+      }
+      if(!$prep->bind_param("iisss", $parentId, $user['id'], $date, $time, $_POST['item'])){
+        echo "Binding parameters failed: (" . $prep->errno . ") " . $prep->error;
+      }
+      if(!$prep->execute()){
+        echo "Execute failed: (" . $prep->errno . ") " . $prep->error;
       }
     }
     else{
-      $numSubTasks = $database->query("SELECT * FROM tasks WHERE parent = {$currentItem['id']}")->num_rows;
+      $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentItem['id']}")->num_rows;
       if($numSubTasks == 0){
-        $updateTask = $currentItem;        
+        $updateTask = $currentItem;
         while(true){
           $updateTask['task_time'] -= $currentItem['task_time'];
-          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
+          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
           if($updateTask['parent'] == 0){
             break;
           }
-          $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
+          $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
         }
         $currentItem['task_time'] = 0;
       }
-      if(!$database->query("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES ({$_GET['item']}, {$user['id']}, {$date}, {$time}, '{$_POST['item']}')")){
-        echo 'error';
+      if (!($prep = $database->prepare("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (?, ?, ?, ?, ?)"))){
+        echo "Prepare failed: (" . $prep->errno . ") " . $prep->error;
       }
-      else{
-        $updateTask = $currentItem;
-        while(true){
-          $updateTask['task_time'] += $_POST['item-time'];
-          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE id = {$updateTask['id']}");
-          if($updateTask['parent'] == 0){
-            break;
-          }
-          $updateTask = $database->query("SELECT * FROM tasks WHERE id = {$updateTask['parent']}")->fetch_assoc();
+      if(!$prep->bind_param("iisss", $_GET['item'], $user['id'], $date, $time, $_POST['item'])){
+         echo "Binding parameters failed: (" . $prep->errno . ") " . $prep->error;
+      }
+      if(!$prep->execute()){
+        echo "Execute failed: (" . $prep->errno . ") " . $prep->error;
+      }
+      $updateTask = $currentItem;
+      while(true){
+        $updateTask['task_time'] += $_POST['item-time'];
+        $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
+        if($updateTask['parent'] == 0){
+          break;
         }
-      }    
+        $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
+      }
     }
   }
 
   $items = NULL;
   if($_GET['view'] == 'items'){
     if(isset($_GET['item'])){
-      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}");
+      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']} ORDER BY task ASC");
     }
     else{
-      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0");
+      $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = 0 ORDER BY task ASC");
     }
   }
   else if($_GET['view'] == 'month'){
     $day = $_GET['day'];
     $month = $_GET['month'];
     $year = $_GET['year'];
-    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date");
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date task ASC");
   }
   else if($_GET['view'] == 'day'){
     $date = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
-    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}'");
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}' ORDER BY task ASC");
   }
   else{
     header("Location: {$CONFIG['url']}?view=items");
