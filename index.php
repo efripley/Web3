@@ -151,7 +151,7 @@ HEAD;
     $day = $_GET['day'];
     $month = $_GET['month'];
     $year = $_GET['year'];
-    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date task ASC");
+    $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date, task ASC");
   }
   else if($_GET['view'] == 'day'){
     $date = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
