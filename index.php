@@ -39,9 +39,14 @@ else if(isset($_SESSION['user-id'])){
       }
       $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
     }
-    if($_GET['submit'] == 'Update Time'){
+    else if($_GET['submit'] == 'Update Time'){
       if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
         $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+      }
+    }
+    else if($_GET['submit'] == 'Update Item'){
+      if($_GET['data'] != ''){
+        $database->query("UPDATE tasks SET task = '{$_GET['data']}' WHERE user = {$user['id']} AND id = {$_GET['item']}");
       }
     }
   }
@@ -216,7 +221,7 @@ HEAD;
     echo "</div>";
     echo "</div>";
     echo "<div class=\"bottom\">";
-    echo "<span class=\"text\">{$currentItem['task']}</span>";
+    echo "<span id=\"item-text\" class=\"text\">{$currentItem['task']}</span>";
     echo "</div>";
     echo "</div>";
   }

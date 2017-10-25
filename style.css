@@ -113,7 +113,8 @@ form input[type="submit"]:hover{
     font-size: .8em;
 }
 .title-cmp .date:hover,
-.title-cmp .time#task-time:hover{
+.title-cmp .time#task-time:hover,
+.title-cmp .text#item-text:hover{
     text-decoration: underline;
     cursor: pointer;
 }

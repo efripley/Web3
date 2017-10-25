@@ -21,6 +21,17 @@
       </form>
     </div>
   </div>
+  <div id="item-editor" style="display: none;" class="editor-cmp">
+    <div class="wrap">
+      <div class="close">&lsaquo;</div>
+      <form action="<?php echo $CONFIG['url']; ?>" method="GET">
+        <input type="hidden" name="view" value="<?php echo $_GET['view']?>">
+        <input type="hidden" name="item" value="<?php echo $_GET['item']?>">
+        <input type="text" name="data" value="<?php echo $currentItem['task'];?>">
+        <input type="submit" name="submit" value="Update Item">
+      </form>
+    </div>
+  </div>
   <script>
     if(document.getElementById('task-date')){
       document.getElementById('task-date').onclick = toggleTaskDateEditor;
@@ -38,6 +49,14 @@
 
     function toggleTaskTimeEditor(){
       document.getElementById('time-editor').classList.toggle('visible');
+    }
+    if(document.getElementById('item-text')){
+      document.getElementById('item-text').onclick = toggleItemTextEditor;
+      document.getElementById('item-editor').getElementsByClassName('close')[0].onclick = toggleItemTextEditor;
+    }
+
+    function toggleItemTextEditor(){
+      document.getElementById('item-editor').classList.toggle('visible');
     }
   </script>
   </body>
