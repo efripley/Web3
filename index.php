@@ -194,7 +194,7 @@ HEAD;
       </div>";
   }
   else if($_GET['view'] == 'month'){
-    
+
   }
   else if($currentItem == NULL){
     echo "<div class=\"title-cmp\"><span class=\"text\">Items</span></div>";
@@ -204,7 +204,7 @@ HEAD;
     $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentItem['id']}")->num_rows;
     echo "<div class=\"title-cmp\">";
     echo "<div class=\"top\">";
-    echo "<a class=\"back-arrow\" href=\"{$_SERVER['HTTP_REFERER']}\">&lsaquo;</a>";
+    echo "<a class=\"back-arrow\" href=\"{$CONFIG['url']}?view=items&item={$currentItem['parent']}\">&lsaquo;</a>";
     echo "<div class=\"task-info\">";
     if($numSubTasks > 0){
       echo "<span class=\"time\">{$itemHours} hrs</span>";
