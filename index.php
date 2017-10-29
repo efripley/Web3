@@ -14,55 +14,12 @@ connect();
 include('head.php');
 
 if(isset($_GET['logout'])){
-  $_SESSION['user-id'] = NULL;
-  header("Location: {$CONFIG['url']}");
+  logOut();
 }
 else if(isset($_SESSION['user-id'])){
-  $user = $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
+  $user = getUser();
 
-  $menu = "";
-  $today = date('Y-m-d');
-  $year = date('Y');
-  $month = date('m');
-  $day = date('d');
-
-  if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
-    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
-  }
-  if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
-    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
-  }
-  if(isset($_GET['submit'])){
-    if($_GET['submit'] == 'Update Date'){
-      $editDate = 'NULL';
-      if($_GET['data'] != ''){
-        $editDate = "'" . $_GET['data'] . "'";
-      }
-      $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
-    }
-    else if($_GET['submit'] == 'Update Time'){
-      if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
-        $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
-      }
-    }
-    else if($_GET['submit'] == 'Update Item'){
-      if($_GET['data'] != ''){
-        $database->query("UPDATE tasks SET task = '{$_GET['data']}' WHERE user = {$user['id']} AND id = {$_GET['item']}");
-      }
-    }
-  }
-$menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
-echo <<<HEAD
-<header class="top-bar">
-  <span class="name">{$user['name']}</span>
-  <div class="menu" onclick="this.classList.toggle('open');">
-    <span>Menu</span>
-    <div class="items">
-      {$menu}
-    </div>
-  </div>
-</header>
-HEAD;
+  buildMenu();
 
   $currentItem = NULL;
   if(isset($_GET['item'])){
@@ -154,24 +111,42 @@ HEAD;
     }
   }
   else if($_GET['view'] == 'month'){
+    if(!isset($_GET['year']) || !isset($_GET['month']) || !isset($_GET['day'])){
+      $year = date('Y');
+      $month = date('m');
+      $day = date('d');
+      header("Location: {$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}");
+      exit();
+    }
     $day = $_GET['day'];
     $month = $_GET['month'];
     $year = $_GET['year'];
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date >= '{$year}-{$month}-01' AND task_date <= '{$year}-{$month}-31' ORDER BY task_date, task ASC");
   }
   else if($_GET['view'] == 'day'){
+    if(!isset($_GET['year']) || !isset($_GET['month']) || !isset($_GET['day'])){
+      $year = date('Y');
+      $month = date('m');
+      $day = date('d');
+      header("Location: {$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$day}");
+      exit();
+    }
     $date = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}' ORDER BY task ASC");
   }
   else{
-    header("Location: {$CONFIG['url']}?view=items");
+    header("Location: {$CONFIG['url']}?view={$SETTINGS['default-view']}");
     exit();
   }
 
   echo "<div class=\"task-wdg\">";
 
-  if($_GET['view'] == 'day'){
-    $today = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
+  if($_GET['view'] == 'day' || $_GET['view'] == 'today'){
+    $today = '';
+    if($_GET['view'] == 'today')
+      $today = date('Y-m-d');
+    else
+      $today = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
     $totalTime = $database->query("SELECT SUM(task_time) AS sum FROM tasks WHERE user = {$user['id']} AND task_date = '{$today}'")->fetch_assoc()['sum'];
     $totalTime = $totalTime / 60;
     $text = $today;
@@ -262,12 +237,7 @@ else if(isset($_POST['username'])){
   $user = $database->query("SELECT * FROM users WHERE username = '{$_POST['username']}' AND password = SHA2('{$_POST['password']}', 256)")->fetch_assoc();
   if(!empty($user)){
     $_SESSION['user-id'] = $user['id'];
-    if(isset($_GET['login'])){
-      header("Location: {$CONFIG['url']}?view=items");
-    }
-    else{
-      header("location: {$_SERVER['HTTP_REFERER']}");
-    }
+    header("Location: {$CONFIG['url']}?view={$SETTINGS['default-view']}");
   }
   else{
     header("Location: {$CONFIG['url']}?login=false");

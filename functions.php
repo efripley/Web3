@@ -1,6 +1,6 @@
 <?php
 global $SETTINGS;
-$SETTINGS["default-view"] = "today";
+$SETTINGS["default-view"] = "day";
 
 function connect(){
   global $CONFIG;
@@ -8,6 +8,68 @@ function connect(){
   $database = new mysqli($CONFIG['host'], $CONFIG['username'], $CONFIG['password'], $CONFIG['database']);
   if($database->connect_error)
     die("Connection Failed: " . $CONFIG['connection']->connect_error);
+}
+
+function getUser(){
+  global $database;
+  return $database->query("SELECT * FROM users WHERE id = {$_SESSION['user-id']}")->fetch_assoc();
+}
+
+function logOut(){
+  global $CONFIG;
+  $_SESSION['user-id'] = NULL;
+  header("Location: {$CONFIG['url']}");
+}
+
+function buildMenu(){
+  global $database, $user;
+
+  $menu = "";
+  $today = date('Y-m-d');
+  $year = date('Y');
+  $month = date('m');
+  $day = date('d');
+
+  if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
+  }
+  if($_GET['view'] == 'items' || $_GET['view'] == 'month' || ($_GET['view'] == 'day' && ($_GET['year'] != date('Y') || $_GET['month'] != date('m') || $_GET['day'] != date('d')))){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$day}\">Today</a>";
+  }
+  if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
+  }
+  if(isset($_GET['submit'])){
+    if($_GET['submit'] == 'Update Date'){
+      $editDate = 'NULL';
+      if($_GET['data'] != ''){
+        $editDate = "'" . $_GET['data'] . "'";
+      }
+      $database->query("UPDATE tasks SET task_date = {$editDate} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+    }
+    else if($_GET['submit'] == 'Update Time'){
+      if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
+        $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+      }
+    }
+    else if($_GET['submit'] == 'Update Item'){
+      if($_GET['data'] != ''){
+        $database->query("UPDATE tasks SET task = '{$_GET['data']}' WHERE user = {$user['id']} AND id = {$_GET['item']}");
+      }
+    }
+  }
+
+  $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?logout=true\">Logout</a>";
+
+  echo "<header class=\"top-bar\">
+    <span class=\"name\">{$user['name']}</span>
+    <div class=\"menu\" onclick=\"this.classList.toggle('open');\">
+      <span>Menu</span>
+      <div class=\"items\">
+        {$menu}
+      </div>
+    </div>
+  </header>";
 }
 
 function buildMonth($items, $year, $month){
