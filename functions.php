@@ -1,4 +1,7 @@
 <?php
+global $SETTINGS;
+$SETTINGS["default-view"] = "today";
+
 function connect(){
   global $CONFIG;
   global $database;

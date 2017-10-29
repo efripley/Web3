@@ -2,6 +2,7 @@
 global $user;
 global $database;
 global $CONFIG;
+global $SETTINGS;
 
 session_start();
 
