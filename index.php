@@ -27,7 +27,22 @@ else if(isset($_SESSION['user-id'])){
   }
 
   if(isset($_GET['delete'])){
-    $removingTask = $database->query("SELECT task_time FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
+    //get the task to be removed from the database
+    $removingTask = $database->query("SELECT * FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
+
+    //get the item repeating command if it exists
+    $repeatStart = strpos($removingTask['task'], "[every");
+    $repeatEnd = "";
+    //check if repeating exist and set repeat end otherwise clear repeat start
+    if($repeatStart){
+      $repeatEnd = strpos(substr($removingTask['task'], $repeatStart), "]");
+      if(!$repeatEnd){
+        $repeatStart = -1;
+        $repeatEnd = -1;
+      }
+    }
+
+
     if($currentItem != NULL){
       $updateTask = $currentItem;
       $currentItem['task_time'] -= $removingTask['task_time'];
@@ -41,6 +56,32 @@ else if(isset($_SESSION['user-id'])){
       }
     }
     $database->query("DELETE FROM tasks WHERE id = {$_GET['delete']}");
+
+    if($repeatStart && $repeatEnd){
+      $repeatStr = substr($removingTask['task'], $repeatStart, $repeatEnd);
+      $repeatStr = str_replace("[every", '', $repeatStr);
+      $repeatStr = str_replace(array("on", "until"), ':', $repeatStr);
+      $repeatArray = explode(':', $repeatStr);
+      for($a = 0; $a < count($repeatArray); $a++){
+        if($a == 0){
+          $repeatArray[0] = preg_replace('/\s+/', '', $repeatArray[0]);
+          $command = explode(',', $repeatArray[0])[0];
+          $when = substr($command, -1);
+          $value = intval($command);
+          if($when == 'd'){
+            $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} days"));
+            if($removingTask['task_date'] != 'NULL'){
+              echo "task({$removingTask['task']})";
+              echo "parent({$removingTask['parent']})";
+              echo "time({$removingTask['task_time']})";
+              echo "date({$next})";
+              addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
+            }
+          }
+        }
+      }
+    }
+
     header('location: ' . $_SERVER['HTTP_REFERER']);
     exit();
   }
@@ -48,61 +89,28 @@ else if(isset($_SESSION['user-id'])){
   if(isset($_POST['item']) && !empty($_POST['item'])){
     $time = 0;
     $date = NULL;
-    if($_POST['item-time'] > 0){
+
+    //set the item time if it exists
+    if($_POST['item-time'] > 0)
       $time = $_POST['item-time'];
-    }
-    if($_POST['item-date'] != ''){
+
+    //set item date if it exists
+    if($_POST['item-date'] != '')
       $date = $_POST['item-date'];
-    }
-    if($currentItem == NULL){
-      $parentId = 0;
-      if (!($prep = $database->prepare("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (?, ?, ?, ?, ?)"))) {
-        echo "Prepare failed: (" . $prep->errno . ") " . $prep->error;
-      }
-      if(!$prep->bind_param("iisss", $parentId, $user['id'], $date, $time, $_POST['item'])){
-        echo "Binding parameters failed: (" . $prep->errno . ") " . $prep->error;
-      }
-      if(!$prep->execute()){
-        echo "Execute failed: (" . $prep->errno . ") " . $prep->error;
-      }
-    }
-    else{
-      $numSubTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$currentItem['id']}")->num_rows;
-      if($numSubTasks == 0){
-        $updateTask = $currentItem;
-        while(true){
-          $updateTask['task_time'] -= $currentItem['task_time'];
-          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
-          if($updateTask['parent'] == 0){
-            break;
-          }
-          $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
-        }
-        $currentItem['task_time'] = 0;
-      }
-      if (!($prep = $database->prepare("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (?, ?, ?, ?, ?)"))){
-        echo "Prepare failed: (" . $prep->errno . ") " . $prep->error;
-      }
-      if(!$prep->bind_param("iisss", $_GET['item'], $user['id'], $date, $time, $_POST['item'])){
-         echo "Binding parameters failed: (" . $prep->errno . ") " . $prep->error;
-      }
-      if(!$prep->execute()){
-        echo "Execute failed: (" . $prep->errno . ") " . $prep->error;
-      }
-      $updateTask = $currentItem;
-      while(true){
-        $updateTask['task_time'] += $_POST['item-time'];
-        $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
-        if($updateTask['parent'] == 0){
-          break;
-        }
-        $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
-      }
-    }
+
+    //check if item is being added to root list
+    $parentId = 0;
+    if($currentItem != NULL)
+      $parentId = $currentItem['id'];
+
+    addItem($_POST['item'], $parentId, $time, $date);
+
+    header('location: ' . $_SERVER['HTTP_REFERER']);
+    exit();
+
   }
 
-  $items = NULL;
-  if($_GET['view'] == 'items'){
+  $items = NULL; if($_GET['view'] == 'items'){
     if(isset($_GET['item'])){
       $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']} ORDER BY task ASC");
     }

@@ -22,7 +22,7 @@ function logOut(){
 }
 
 function buildMenu(){
-  global $database, $user;
+  global $database, $user, $CONFIG;
 
   $menu = "";
   $today = date('Y-m-d');
@@ -151,6 +151,45 @@ function buildMonth($items, $year, $month){
       if($day > $totalDays)
         break;
     }
+  }
+}
+
+function addItem($itemText, $itemParent, $itemTime, $itemDate){
+  global $database, $user;
+  //Check for sibling tasks and zero out parent task time if this is the first child task
+  //Parent tasks are not allowed to have a set time. They get a total time from their children
+  $currentItem = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$itemParent}")->fetch_assoc();
+  $numSiblingTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$itemParent}")->num_rows;
+  if($numSiblingTasks == 0){
+    $updateTask = $currentItem;
+    while(true){
+      $updateTask['task_time'] -= $currentItem['task_time'];
+      $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
+      if($updateTask['parent'] == 0){
+        break;
+      }
+      $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
+    }
+    $currentItem['task_time'] = 0;
+  }
+
+  //Insert the task into the database
+  $prep = $database->prepare("INSERT INTO tasks (parent, user, task_date, task_time, task) VALUES (?, ?, ?, ?, ?)");
+  echo $itemDate;
+  $prep->bind_param("iisss", $itemParent, $user['id'], $itemDate, $itemTime, $itemText);
+  if(!$prep->execute()){
+    echo "Execute failed: (" . $prep->errno . ") " . $prep->error;
+  }
+
+  //update item family 'item times'
+  $updateTask = $currentItem;
+  while(true){
+    $updateTask['task_time'] += $itemTime;
+    $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
+    if($updateTask['parent'] == 0){
+      break;
+    }
+    $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
   }
 }
 ?>
