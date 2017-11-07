@@ -22,13 +22,21 @@ else if(isset($_SESSION['user-id'])){
   buildMenu();
 
   $currentItem = NULL;
+  if(isset($_GET['error'])){
+    echo "<script>alert('{$_GET['error']}');</script>";
+  }
   if(isset($_GET['item'])){
-    $currentItem = $database->query("SELECT * FROM tasks WHERE id = {$_GET['item']}")->fetch_assoc();
+    $currentItem = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$_GET['item']}")->fetch_assoc();
   }
 
   if(isset($_GET['delete'])){
     //get the task to be removed from the database
-    $removingTask = $database->query("SELECT * FROM tasks WHERE id = {$_GET['delete']}")->fetch_assoc();
+    $removingTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$_GET['delete']}")->fetch_assoc();
+
+    if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['delete']}")->num_rows > 0){
+      header('location: ' . $_SERVER['HTTP_REFERER'] . '&error=Could Not Delete, item contains sub items');
+      exit();
+    }
 
     //get the item repeating command if it exists
     $repeatStart = strpos($removingTask['task'], "[every");
