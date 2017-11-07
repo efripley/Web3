@@ -39,7 +39,7 @@ form input[type="submit"]:hover{
     text-decoration: none;
     position: relative;
     padding: 0 15px;
-    width: 5em;
+    width: 7em;
     cursor: pointer;
     display: block;
     text-align: right;
@@ -63,7 +63,7 @@ form input[type="submit"]:hover{
     border-top: 1px solid #444;
 }
 .top-bar .menu .item{
-    width: 5em;
+    width: 7em;
     color: #fff;
     padding: 0 15px;
     text-decoration: none;
