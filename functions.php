@@ -30,14 +30,17 @@ function buildMenu(){
   $month = date('m');
   $day = date('d');
 
-  if($_GET['view'] == 'month' || $_GET['view'] == 'day'){
-    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
-  }
-  if($_GET['view'] == 'items' || $_GET['view'] == 'month' || ($_GET['view'] == 'day' && ($_GET['year'] != date('Y') || $_GET['month'] != date('m') || $_GET['day'] != date('d')))){
+  if($_GET['view'] != 'day' || ($_GET['view'] == 'day' && ($_GET['year'] != date('Y') || $_GET['month'] != date('m') || $_GET['day'] != date('d')))){
     $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$day}\">Today</a>";
   }
-  if($_GET['view'] == 'day' || $_GET['view'] == 'items'){
-    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Calendar</a>";
+  if($_GET['view'] != 'month' || $_GET['view'] == 'items'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=month&year={$year}&month={$month}&day={$day}\">Month</a>";
+  }
+  if($_GET['view'] != 'items' || ($_GET['view'] == 'items' && $_GET['item'] != 0)){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=items\">Items</a>";
+  }
+  if($_GET['view'] != 'unscheduled'){
+    $menu = $menu . "<a class=\"item\" href=\"{$CONFIG['url']}?view=unscheduled\">Unscheduled</a>";
   }
   if(isset($_GET['submit'])){
     if($_GET['submit'] == 'Update Date'){

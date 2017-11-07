@@ -73,10 +73,6 @@ else if(isset($_SESSION['user-id'])){
           if($when == 'd'){
             $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} days"));
             if($removingTask['task_date'] != 'NULL'){
-              echo "task({$removingTask['task']})";
-              echo "parent({$removingTask['parent']})";
-              echo "time({$removingTask['task_time']})";
-              echo "date({$next})";
               addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
             }
           }
@@ -84,10 +80,6 @@ else if(isset($_SESSION['user-id'])){
           else if($when == 'w'){
             $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} weeks"));
             if($removingTask['task_date'] != 'NULL'){
-              echo "task({$removingTask['task']})";
-              echo "parent({$removingTask['parent']})";
-              echo "time({$removingTask['task_time']})";
-              echo "date({$next})";
               addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
             }
           }
@@ -95,10 +87,6 @@ else if(isset($_SESSION['user-id'])){
           else if($when == 'm'){
             $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} months"));
             if($removingTask['task_date'] != 'NULL'){
-              echo "task({$removingTask['task']})";
-              echo "parent({$removingTask['parent']})";
-              echo "time({$removingTask['task_time']})";
-              echo "date({$next})";
               addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
             }
           }
@@ -106,10 +94,6 @@ else if(isset($_SESSION['user-id'])){
           else if($when == 'y'){
             $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} years"));
             if($removingTask['task_date'] != 'NULL'){
-              echo "task({$removingTask['task']})";
-              echo "parent({$removingTask['parent']})";
-              echo "time({$removingTask['task_time']})";
-              echo "date({$next})";
               addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
             }
           }
@@ -145,7 +129,8 @@ else if(isset($_SESSION['user-id'])){
 
   }
 
-  $items = NULL; if($_GET['view'] == 'items'){
+  $items = NULL;
+  if($_GET['view'] == 'items'){
     if(isset($_GET['item'])){
       $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']} ORDER BY task ASC");
     }
@@ -176,6 +161,9 @@ else if(isset($_SESSION['user-id'])){
     }
     $date = "{$_GET['year']}-{$_GET['month']}-{$_GET['day']}";
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}' ORDER BY task ASC");
+  }
+  else if($_GET['view'] == 'unscheduled'){
+    $items = $database->query("SELECT ta.* FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.user = {$user['id']}");
   }
   else{
     header("Location: {$CONFIG['url']}?view={$SETTINGS['default-view']}");
@@ -214,6 +202,18 @@ else if(isset($_SESSION['user-id'])){
   }
   else if($_GET['view'] == 'month'){
 
+  }
+  else if($_GET['view'] == 'unscheduled'){
+    $totalTime = $database->query("SELECT SUM(ta.task_time) AS sum FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.user = {$user['id']}")->fetch_assoc()['sum'];
+    $totalTime = $totalTime / 60;
+    echo "<div class=\"title-cmp\">
+            <div class=\"top\">
+              <span class=\"time\">{$totalTime} hrs</span>
+            </div>
+            <div class=\"bottom\">
+              <span class=\"text\">Unscheduled Items</span>
+            </div>
+      </div>";
   }
   else if($currentItem == NULL){
     echo "<div class=\"title-cmp\"><span class=\"text\">Items</span></div>";
