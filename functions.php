@@ -52,7 +52,18 @@ function buildMenu(){
     }
     else if($_GET['submit'] == 'Update Time'){
       if($database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$_GET['item']}")->num_rows <= 0){
-        $database->query("UPDATE tasks SET task_time = {$_GET['data']} WHERE user = {$user['id']} AND id = {$_GET['item']}");
+        $oldTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND  id = {$_GET['item']}")->fetch_assoc();
+        $timeDiff = (int)$_GET['data'] - (int)$oldTask['task_time'];
+
+        $updateTask = $oldTask;
+        while(true){
+          $updateTask['task_time'] += $timeDiff;
+          $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
+          if($updateTask['parent'] == 0){
+            break;
+          }
+          $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
+        }
       }
     }
     else if($_GET['submit'] == 'Update Item'){
