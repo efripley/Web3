@@ -160,7 +160,7 @@ function addItem($itemText, $itemParent, $itemTime, $itemDate){
   //Parent tasks are not allowed to have a set time. They get a total time from their children
   $currentItem = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$itemParent}")->fetch_assoc();
   $numSiblingTasks = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND parent = {$itemParent}")->num_rows;
-  if($numSiblingTasks == 0){
+  if($numSiblingTasks == 0 && currentItem != NULL){
     $updateTask = $currentItem;
     while(true){
       $updateTask['task_time'] -= $currentItem['task_time'];
@@ -182,14 +182,16 @@ function addItem($itemText, $itemParent, $itemTime, $itemDate){
   }
 
   //update item family 'item times'
-  $updateTask = $currentItem;
-  while(true){
-    $updateTask['task_time'] += $itemTime;
-    $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
-    if($updateTask['parent'] == 0){
-      break;
+  if($currentItem != NULL){
+    $updateTask = $currentItem;
+    while(true){
+      $updateTask['task_time'] += $itemTime;
+      $database->query("UPDATE tasks SET task_time = {$updateTask['task_time']} WHERE user = {$user['id']} AND id = {$updateTask['id']}");
+      if($updateTask['parent'] == 0){
+        break;
+      }
+      $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
     }
-    $updateTask = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND id = {$updateTask['parent']}")->fetch_assoc();
   }
 }
 ?>

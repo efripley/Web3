@@ -57,6 +57,7 @@ else if(isset($_SESSION['user-id'])){
     }
     $database->query("DELETE FROM tasks WHERE id = {$_GET['delete']}");
 
+    //add next task if repeating
     if($repeatStart && $repeatEnd){
       $repeatStr = substr($removingTask['task'], $repeatStart, $repeatEnd);
       $repeatStr = str_replace("[every", '', $repeatStr);
@@ -68,8 +69,42 @@ else if(isset($_SESSION['user-id'])){
           $command = explode(',', $repeatArray[0])[0];
           $when = substr($command, -1);
           $value = intval($command);
+          //occurs every * days
           if($when == 'd'){
             $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} days"));
+            if($removingTask['task_date'] != 'NULL'){
+              echo "task({$removingTask['task']})";
+              echo "parent({$removingTask['parent']})";
+              echo "time({$removingTask['task_time']})";
+              echo "date({$next})";
+              addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
+            }
+          }
+          //occurs every * weeks
+          else if($when == 'w'){
+            $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} weeks"));
+            if($removingTask['task_date'] != 'NULL'){
+              echo "task({$removingTask['task']})";
+              echo "parent({$removingTask['parent']})";
+              echo "time({$removingTask['task_time']})";
+              echo "date({$next})";
+              addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
+            }
+          }
+          //occurs every * months
+          else if($when == 'm'){
+            $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} months"));
+            if($removingTask['task_date'] != 'NULL'){
+              echo "task({$removingTask['task']})";
+              echo "parent({$removingTask['parent']})";
+              echo "time({$removingTask['task_time']})";
+              echo "date({$next})";
+              addItem($removingTask['task'], $removingTask['parent'], $removingTask['task_time'], $next);
+            }
+          }
+          //occurs every * years
+          else if($when == 'y'){
+            $next = date("Y-m-d", strtotime("{$removingTask['task_date']} +{$value} years"));
             if($removingTask['task_date'] != 'NULL'){
               echo "task({$removingTask['task']})";
               echo "parent({$removingTask['parent']})";
