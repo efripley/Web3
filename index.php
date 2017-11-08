@@ -171,7 +171,7 @@ else if(isset($_SESSION['user-id'])){
     $items = $database->query("SELECT * FROM tasks WHERE user = {$user['id']} AND task_date = '{$date}' ORDER BY task ASC");
   }
   else if($_GET['view'] == 'unscheduled'){
-    $items = $database->query("SELECT ta.* FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.user = {$user['id']}");
+    $items = $database->query("SELECT ta.* FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.task_date IS NULL AND ta.user = {$user['id']} ORDER BY task ASC");
   }
   else{
     header("Location: {$CONFIG['url']}?view={$SETTINGS['default-view']}");
@@ -212,7 +212,7 @@ else if(isset($_SESSION['user-id'])){
 
   }
   else if($_GET['view'] == 'unscheduled'){
-    $totalTime = $database->query("SELECT SUM(ta.task_time) AS sum FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.user = {$user['id']}")->fetch_assoc()['sum'];
+    $totalTime = $database->query("SELECT SUM(ta.task_time) AS sum FROM tasks ta LEFT JOIN tasks tb ON ta.id = tb.parent WHERE tb.id IS NULL AND ta.task_date IS NULL AND ta.user = {$user['id']}")->fetch_assoc()['sum'];
     $totalTime = $totalTime / 60;
     echo "<div class=\"title-cmp\">
             <div class=\"top\">
