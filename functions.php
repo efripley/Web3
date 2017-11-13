@@ -1,6 +1,7 @@
 <?php
 global $SETTINGS;
 $SETTINGS["default-view"] = "day";
+//$SETTINGS["month-view-num-items"] = 5;
 
 function connect(){
   global $CONFIG;
@@ -121,6 +122,8 @@ function buildMonth($items, $year, $month){
         <span class=\"day-item\"></span>
         <span class=\"day-item\"></span>
         <span class=\"day-item\"></span>
+        <span class=\"day-item\"></span>
+        <span class=\"day-item\"></span>
         <span class=\"day-hrs\"></span>
       </span>
       ";
@@ -134,7 +137,7 @@ function buildMonth($items, $year, $month){
     $date = "{$year}-{$month}-{$dayString}";
     if($date == $item['task_date']){
       $time += $item['task_time'];
-      if(count($itemText) < 3){
+      if(count($itemText) < 5){
         array_push($itemText, $item['task']);
       }
       $item = $items->fetch_assoc();
@@ -150,12 +153,16 @@ function buildMonth($items, $year, $month){
         $item1 = ($itemText[0]) ?: '';
         $item2 = ($itemText[1]) ?: '';
         $item3 = ($itemText[2]) ?: '';
+        $item4 = ($itemText[3]) ?: '';
+        $item5 = ($itemText[4]) ?: '';
       echo "
       <a class=\"day-cmp {$todayClass}\" href=\"{$CONFIG['url']}?view=day&year={$year}&month={$month}&day={$dayString}\">
         <span class=\"day-number\">{$day}</span>
         <span class=\"day-item\">$item1</span>
         <span class=\"day-item\">$item2</span>
         <span class=\"day-item\">$item3</span>
+        <span class=\"day-item\">$item4</span>
+        <span class=\"day-item\">$item5</span>
         <span class=\"day-hrs\">{$timeString}</span>
       </a>
       ";
