@@ -1,0 +1,23 @@
+nginx:
+    image: 'bitnami/nginx'
+    ports:
+        - '8000:8000'
+    links:
+        - phpfpm
+    volumes:
+        - ./nginx/app.conf:/bitnami/nginx/conf/vhosts/app.conf
+        - ./public:/myapps
+phpfpm:
+    image: 'bitnami/php-fpm'
+    ports:
+        - '9000:9000'
+    volumes:
+        - ./public:/myapps
+mysql:
+    image: 'mariadb'
+    ports:
+        - '3306:3306'
+    volumes:
+        - ./db-data:/var/lib/mysql
+    environment:
+        - MYSQL_ROOT_PASSWORD=calendar_user
